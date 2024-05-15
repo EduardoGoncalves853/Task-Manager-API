@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 
 export const taskControllers = {
-  read(_req: Request, res: Response, next: NextFunction) {
-  try {
-    return res.status(200).json({message:"Tasks"})
-      
-  } catch (error) {
-    return next(error)   
-  }
-}}
+  async read(req: Request, res: Response, next: NextFunction) {
+    try {
+      return res.status(200).json({
+        message: "task!",
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+};

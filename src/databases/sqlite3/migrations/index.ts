@@ -1,11 +1,11 @@
-import { sqliteConnection } from "..";
+import { sqliteconection } from "..";
 import { tableTasks } from "./tableTasks";
 import { tableUsers } from "./tableUsers";
 
 export async function runMigrations() {
   const schemas = [tableUsers, tableTasks].join("");
 
-  sqliteConnection()
+  sqliteconection()
     .then((db) => db.exec(schemas))
-    .catch((error) => console.log("Migration Error", error));
+    .catch((error) => console.log(error));
 }

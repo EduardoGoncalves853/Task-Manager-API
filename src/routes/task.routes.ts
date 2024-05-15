@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { taskControllers } from "../controllers/taskControllers";
+import { userRoutes } from "./user.route";
 
 export const taskRoutes = Router();
-taskRoutes.get("/tasks", taskControllers.read);
+
+userRoutes.get("/tasks", taskControllers.read);
