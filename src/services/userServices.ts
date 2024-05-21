@@ -3,12 +3,13 @@ import { randomUUID } from "node:crypto";
 import { hash } from "bcrypt";
 import { CreateUserDataType } from "../repositories/userRepositories";
 
-type Repository = {
+export type UserRepositoryTypes = {
   createUser(data: UserDataType): Promise<{} | undefined>
+  getUserByEmail(email: string): Promise<{} | undefined>
 }
 
 export const userServices = {
-  async create(data: UserDataType, repository: Repository) {
+  async create(data: UserDataType, repository: UserRepositoryTypes) {
     try {
       const { name, email, password } = data;
       const passwordHash = await hash(password, 10);
