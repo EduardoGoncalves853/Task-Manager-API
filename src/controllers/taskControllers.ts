@@ -1,11 +1,20 @@
 import { Request, Response, NextFunction } from "express";
+import { taskSchema } from "../validations/taskSchema";
 
 export const taskControllers = {
-  async read(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
-      return res.status(200).json({
-        message: "task!",
-      });
+      const { title, description, date, status } = taskSchema.parse(req.body);
+      const userID = req.userID
+
+      const taskCreated = {
+        title,
+        description,
+        date,
+        status,
+        idUser: "bdasdo"
+      };
+      return res.status(200).json({ message: "tasks!", taskCreated });
     } catch (error) {
       return next(error);
     }

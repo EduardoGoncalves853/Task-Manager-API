@@ -4,14 +4,15 @@ import { hash } from "bcrypt";
 import { CreateUserDataType } from "../repositories/userRepositories";
 
 export type UserRepositoryTypes = {
-  createUser(data: UserDataType): Promise<{} | undefined>
-  getUserByEmail(email: string): Promise<{} | undefined>
+  createUser(data: CreateUserDataType): Promise<{} | undefined>
+  getUserByEmail(email: string): Promise< CreateUserDataType | undefined>
 }
 
 export const userServices = {
   async create(data: UserDataType, repository: UserRepositoryTypes) {
     try {
       const { name, email, password } = data;
+
       const passwordHash = await hash(password, 10);
       const user = {
         id: randomUUID(),

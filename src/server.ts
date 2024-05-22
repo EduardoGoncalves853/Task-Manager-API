@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
 import { routes } from "./routes";
-import { appErrors } from "./errors/appErrors";
+import { appErrors } from "./errors/appError";
 import { pageNotFound } from "./errors/pageNotFound";
 import { sqliteconection } from "./databases/sqlite3";
 import { runMigrations } from "./databases/sqlite3/migrations";
@@ -23,4 +23,4 @@ sqliteconection()
   .then(() => console.log("you database is conected..."))
   .catch((error) => console.error("Database is not conected...", error));
 
-  runMigrations()
+runMigrations();
