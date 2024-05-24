@@ -8,4 +8,5 @@ taskRoutes.use(authMiddleware);
 
 taskRoutes.post("/task", taskControllers.create);
 taskRoutes.put("/task/:taskID", taskControllers.update);
+taskRoutes.get("/tasks", taskControllers.read);
 taskRoutes.delete("/task/:taskID", taskControllers.delete);
