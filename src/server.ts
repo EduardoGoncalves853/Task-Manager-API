@@ -1,9 +1,9 @@
 import express from "express";
 import "dotenv/config";
 import { routes } from "./routes";
-import { appErrors } from "./errors/appError";
+import { appErrors } from "./errors/appErrors";
 import { pageNotFound } from "./errors/pageNotFound";
-import { sqliteconection } from "./databases/sqlite3";
+import { sqliteConnection } from "./databases/sqlite3";
 import { runMigrations } from "./databases/sqlite3/migrations";
 
 const app = express();
@@ -19,8 +19,8 @@ app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
 
-sqliteconection()
-  .then(() => console.log("you database is conected..."))
-  .catch((error) => console.error("Database is not conected...", error));
+sqliteConnection()
+  .then(() => console.log("Database is connected..."))
+  .catch((error) => console.error("Database isn't connected -", error));
 
 runMigrations();

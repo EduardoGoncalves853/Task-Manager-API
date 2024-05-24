@@ -1,19 +1,11 @@
 export const tableUsers = `
-  CREATE TABLE IF NOT EXISTS tasks (
+  CREATE TABLE IF NOT EXISTS users (
     id VARCHAR PRIMARY KEY NOT NULL,
-    description VARCHAR NOT NULL,
-    date DATE NOT NULL,
-    status VARCHAR CHECK (status IN ('completed', 'pending')) DEFAULT 'pending',
-    id_user VARCHAR NOT NULL,
-    created_at DATE DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATE DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE
+    name VARCHAR NOT NULL,
+    email VARCHAR NOT NULL UNIQUE,
+    password VARCHAR NOT NULL,
+    role VARCHAR CHECK (role IN ('admin', 'user')) DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   );
 `;
-
-
-
-
-
-
-

@@ -4,8 +4,8 @@ import { authMiddleware } from "../middlewares/authMiddleware";
 
 export const taskRoutes = Router();
 
-taskRoutes.use(authMiddleware)
+taskRoutes.use(authMiddleware);
 
-taskRoutes.get("/task", authMiddleware, taskControllers.create);
-taskRoutes.get("/task/:taskID", authMiddleware, taskControllers.update);
+taskRoutes.post("/task", taskControllers.create);
+taskRoutes.put("/task/:taskID", taskControllers.update);
 taskRoutes.delete("/task/:taskID", taskControllers.delete);

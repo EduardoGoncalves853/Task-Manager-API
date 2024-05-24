@@ -1,12 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import { userSchema } from "../validations/userSchema";
 import { userServices } from "../services/userServices";
-import { userRepository } from "../repositories/userRepositories";
+import { userRepository } from "../repositories/userRepository";
 
 export const userControllers = {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, email, password } = userSchema.parse(req.body);
+
       const userCreated = await userServices.create(
         { name, email, password },
         userRepository
