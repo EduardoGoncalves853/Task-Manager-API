@@ -1,34 +1,36 @@
 import { randomUUID } from "node:crypto";
-import { TaskDataType } from "../validations/taskSchema";
 import { appError } from "../errors/appError";
-import { PaginationDataType } from "../validations/paginationSchema";
+import { TaskDataTypes } from "../validations/taskSchema";
+import { PaginationDataTypes } from "../validations/paginationSchema";
+import { CreateTaskDataTypes, UpdateTaskDataTypes } from "../repositories/taskRepository";
 
-export type CreateTaskDataTypes = TaskDataType & { idUser: string };
-export type UpdateTaskDataTypes = TaskDataType & { id_user: string };
-export type UserTasksPagination = PaginationDataType & { userID: string };
+export type TaskDataCreate = TaskDataTypes & { user_id: string };
+export type UserTasksPagination = PaginationDataTypes & { userID: string };
 
-export type TaskRepositoryTypes = {
-  createTask(data: CreateTaskDataTypes): Promise<{} | undefined>;
-  getTask(id: string): Promise<UpdateTaskDataTypes | undefined>;
-  getTasks(
-    data: UserTasksPagination
-  ): Promise<CreateTaskDataTypes[] | undefined>;
-  updateTask(data: CreateTaskDataTypes): Promise<{} | undefined>;
-  deleteTask(id: string): Promise<{} | undefined>;
+type Repository = {
+  createTask(data: TaskDataCreate): Promise<CreateTaskDataTypes | undefined>;
+  getTask(id: string): Promise<CreateTaskDataTypes | undefined>;
+  getTasks(data: UserTasksPagination): Promise<CreateTaskDataTypes[] | undefined>;
+  updateTask(data: UpdateTaskDataTypes): Promise<UpdateTaskDataTypes | undefined>;
+  deleteTaskByID(id: string): Promise<{ id: string } | undefined>;
 };
 
 export const taskServices = {
-  async create(data: CreateTaskDataTypes, repository: TaskRepositoryTypes) {
+  async create(data: TaskDataCreate, repository: Repository) {
     try {
-      const { title, description, date, status, idUser } = data;
+      const { title, description, date, status, user_id } = data;
+
+      if (new Date(date) < new Date()) {
+        throw appError("date cannot be before the current time!", 400);
+      }
 
       const task = {
         id: randomUUID(),
         title,
         description,
         date,
-        status,
-        idUser,
+        status: status || "pending",
+        user_id,
       };
 
       const taskCreated = await repository.createTask(task);
@@ -39,71 +41,69 @@ export const taskServices = {
     }
   },
 
-  async update(
-    taskID: string,
-    data: CreateTaskDataTypes,
-    repository: TaskRepositoryTypes
-  ) {
+  async read(data: UserTasksPagination, repository: Repository) {
     try {
-      const { title, description, date, status, idUser } = data;
+      const { userID, limit, offset, filter } = data;
 
-      const task = {
-        id: taskID,
+      if (!limit || !offset || !filter) {
+        throw appError("please inform query params limit, offset and filter!", 400);
+      }
+
+      const userTasks = await repository.getTasks({ userID, limit, offset, filter });
+
+      return userTasks;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async update(id: string, data: TaskDataCreate, repository: Repository) {
+    try {
+      const { title, description, date, status, user_id } = data;
+
+      if (new Date(date) < new Date()) {
+        throw appError("date cannot be before the current time!", 400);
+      }
+
+      const task = await repository.getTask(id);
+      if (!task) throw appError("task not found!", 404);
+
+      if (task.user_id != user_id) {
+        throw appError("user not authorized to update task!", 401);
+      }
+
+      const taskToUpdate = {
+        id,
         title,
         description,
         date,
-        status,
-        idUser,
+        status: status || "pending",
+        user_id,
+        updated_at: new Date(),
       };
 
-      const userTask = await repository.getTask(taskID);
-      if (!userTask) throw appError("task not found", 404);
+      const taskUpdate = await repository.updateTask(taskToUpdate);
 
-      if (userTask.id_user != idUser) {
-        throw appError("user not authorized to update task", 401);
-      }
-
-      const taskUpdated = await repository.updateTask(task);
-
-      return taskUpdated;
+      return taskUpdate;
     } catch (error) {
       throw error;
     }
   },
 
-  async delete(
-    taskID: string,
-    userID: string,
-    repository: TaskRepositoryTypes
-  ) {
+  async delete(id: string, user_id: string, repository: Repository) {
     try {
-      const userTask = await repository.getTask(taskID);
-      if (!userTask) throw appError("task not found", 404);
+      const task = await repository.getTask(id);
+      if (!task) throw appError("task not found!", 404);
 
-      if (userTask.id_user != userID) {
-        throw appError("user not authorized to delete task", 401);
+      if (task.user_id != user_id) {
+        throw appError("user not authorized to delete task!", 401);
       }
 
-      const taskDelete = await repository.deleteTask(taskID);
-      if (!taskDelete) throw appError("task not deleted!", 500);
+      const taskDeleted = await repository.deleteTaskByID(id);
 
-      return taskDelete;
-    } catch (error) {
-      throw error;
-    }
-  },
+      if (!taskDeleted) throw appError("task not deleted!", 500);
 
-  async read(data: UserTasksPagination, repository: TaskRepositoryTypes) {
-    try {
-      const { userID, filter, offset, limit } = data;
-      const userTasks = await repository.getTasks({
-        userID,
-        filter,
-        offset,
-        limit,
-      });
-
-      return userTasks;
+      return taskDeleted;
     } catch (error) {
       throw error;
     }
